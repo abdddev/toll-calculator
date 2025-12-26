@@ -3,19 +3,14 @@ package main
 import (
 	"fmt"
 	"log"
-	"math"
-	"math/rand"
 	"net/http"
 
-	"github.com/fulltimegodev/tolling/types"
+	"github.com/abdddev/toll-calculator/types"
 	"github.com/gorilla/websocket"
 )
 
 func main() {
-	recv, err := NewDataReceiver()
-	if err != nil {
-		log.Fatal(err)
-	}
+	recv := NewDataReceiver()
 	http.HandleFunc("/ws", recv.handleWS)
 	http.ListenAndServe(":30000", nil)
 }
@@ -23,28 +18,12 @@ func main() {
 type DataReceiver struct {
 	msgch chan types.OBUData
 	conn  *websocket.Conn
-	prod  DataProducer
 }
 
-func NewDataReceiver() (*DataReceiver, error) {
-	var (
-		p          DataProducer
-		err        error
-		kafkaTopic = "obudata"
-	)
-	p, err = NewKafkaProducer(kafkaTopic)
-	if err != nil {
-		return nil, err
-	}
-	p = NewLogMiddleware(p)
+func NewDataReceiver() *DataReceiver {
 	return &DataReceiver{
 		msgch: make(chan types.OBUData, 128),
-		prod:  p,
-	}, nil
-}
-
-func (dr *DataReceiver) produceData(data types.OBUData) error {
-	return dr.prod.ProduceData(data)
+	}
 }
 
 func (dr *DataReceiver) handleWS(w http.ResponseWriter, r *http.Request) {
@@ -70,10 +49,7 @@ func (dr *DataReceiver) wsReceiveLoop() {
 			log.Println("read error:", err)
 			continue
 		}
-		data.RequestID = rand.Intn(math.MaxInt)
-		fmt.Println("received message", data)
-		if err := dr.produceData(data); err != nil {
-			fmt.Println("kafka produce error:", err)
-		}
+		fmt.Printf("received OBU data from [%d] :: <lat %.2f, long %.2f> \n", data.OBUID, data.Lat, data.Long)
+		dr.msgch <- types.OBUData{}
 	}
 }

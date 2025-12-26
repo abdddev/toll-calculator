@@ -2,16 +2,18 @@ package main
 
 import (
 	"log"
+	"math"
 	"math/rand"
 	"time"
 
-	"github.com/fulltimegodev/tolling/types"
+	"github.com/abdddev/toll-calculator/types"
 	"github.com/gorilla/websocket"
 )
 
-const wsEndpoint = "ws://127.0.0.1:30000/ws"
-
-var sendInterval = time.Second * 5
+const (
+	sendInterval = time.Second
+	wsEndpoint   = "ws://127.0.0.1:30000/ws"
+)
 
 func genLatLong() (float64, float64) {
 	return genCoord(), genCoord()
@@ -48,7 +50,7 @@ func main() {
 func generateOBUIDS(n int) []int {
 	ids := make([]int, n)
 	for i := 0; i < n; i++ {
-		ids[i] = rand.Intn(999999)
+		ids[i] = rand.Intn(math.MaxInt)
 	}
 	return ids
 }
