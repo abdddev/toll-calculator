@@ -15,7 +15,7 @@ func main() {
 		svc CalculatorServicer
 	)
 	svc = NewCalculatorService()
-	//svc = NewLogMiddleware(svc)
+	svc = NewLogMiddleware(svc)
 
 	//httpClient := client.NewHTTPClient(aggregatorEndpoint)
 	// grpcClient, err := client.NewGRPCClient(aggregatorEndpoint)
