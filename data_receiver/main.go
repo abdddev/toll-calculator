@@ -9,8 +9,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var kafkaTopic = "obudata"
-
 func main() {
 	recv, err := NewDataReceiver()
 	if err != nil {
@@ -27,11 +25,16 @@ type DataReceiver struct {
 }
 
 func NewDataReceiver() (*DataReceiver, error) {
-	p, err := NewKafkaProducer(kafkaTopic)
+	var (
+		p          DataProducer
+		err        error
+		kafkaTopic = "obudata"
+	)
+	p, err = NewKafkaProducer(kafkaTopic)
 	if err != nil {
 		return nil, err
 	}
-
+	p = NewLogMiddleware(p)
 	return &DataReceiver{
 		msgch:    make(chan types.OBUData, 128),
 		producer: p,
