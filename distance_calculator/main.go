@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+
+	"github.com/abdddev/toll-calculator/aggregator/client"
 )
 
 const (
@@ -17,13 +19,7 @@ func main() {
 	svc = NewCalculatorService()
 	svc = NewLogMiddleware(svc)
 
-	//httpClient := client.NewHTTPClient(aggregatorEndpoint)
-	// grpcClient, err := client.NewGRPCClient(aggregatorEndpoint)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	kafkaConsumer, err := NewKafkaConsumer(kafkaTopic, svc)
+	kafkaConsumer, err := NewKafkaConsumer(kafkaTopic, svc, client.NewHTTPClient(aggregatorEndpoint))
 	if err != nil {
 		log.Fatal(err)
 	}
