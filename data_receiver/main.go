@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"math"
+	"math/rand"
 	"net/http"
 
 	"github.com/abdddev/toll-calculator/types"
@@ -68,6 +70,8 @@ func (dr *DataReceiver) wsReceiveLoop() {
 			log.Println("read error:", err)
 			continue
 		}
+		data.RequestID = rand.Intn(math.MaxInt)
+		fmt.Println("received message", data)
 		if err := dr.produceData(data); err != nil {
 			fmt.Println("kafka produce error:", err)
 		}
